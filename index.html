@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#00FF66" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FitPro AI" />
+  <title>FitPro AI — מערכת כושר, תזונה ומאמן אישי</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <style>
+    :root {
+      --bg: #07090e;
+      --card: #0f141f;
+      --card-2: #161d2b;
+      --border: #232c3d;
+      --neon: #00ff66;
+      --neon-soft: rgba(0, 255, 102, 0.14);
+      --text: #f4f6fa;
+      --muted: #9aa4b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 84px;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(7, 9, 14, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+    .brand span { color: var(--neon); }
+    .badge {
+      background: var(--neon-soft);
+      color: var(--neon);
+      border: 1px solid rgba(0, 255, 102, 0.35);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .card h2, .card h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+    .muted { color: var(--muted); font-size: 0.85rem; }
+    .kpi {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--neon);
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    button.primary {
+      background: var(--neon);
+      color: #051109;
+      border-color: var(--neon);
+      font-weight: 800;
+    }
+    input, select {
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+    }
+    .exercise-item {
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .sets-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .set-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+    .tab-view { display: none; }
+    .tab-view.active { display: block; }
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 20, 31, 0.96);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px;
+      z-index: 30;
+    }
+    nav.bottom-nav button {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.75rem;
+      padding: 6px 10px;
+    }
+    nav.bottom-nav button.active {
+      color: var(--neon);
+      background: var(--neon-soft);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="./icon-192.png" alt="FitPro AI" width="28" height="28" style="border-radius:8px;" />
+      <div>FitPro <span>AI</span></div>
+    </div>
+    <div class="badge" id="status-badge">אוריאל • PWA מוכן</div>
+  </header>
+
+  <main class="container">
+    <!-- לשונית 1: בית -->
+    <section id="tab-home" class="tab-view active">
+      <div class="grid-2">
+        <div class="card">
+          <h2>התקדמות יומית</h2>
+          <div class="row">
+            <div>
+              <div class="muted">קלוריות</div>
+              <div class="kpi" id="kpi-calories">0 / 2,500</div>
+            </div>
+            <div>
+              <div class="muted">חלבון</div>
+              <div class="kpi" id="kpi-protein">0 / 170g</div>
+            </div>
+          </div>
+          <p class="muted" id="coach-summary" style="margin-top:10px;">
+            הנתונים נשמרים מקומית במכשיר ופועלים גם במצב אופליין.
+          </p>
+        </div>
+
+        <div class="card">
+          <h2>מעקב מים</h2>
+          <div class="kpi" id="kpi-water">0 / 3,000 מ"ל</div>
+          <div class="row" style="margin-top:12px;">
+            <button class="primary" onclick="addWater(250)">+ 250 מ"ל</button>
+            <button onclick="addWater(500)">+ 500 מ"ל</button>
+            <button onclick="resetWater()">איפוס</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h2>תרגילים חסומים (Blacklist)</h2>
+        <p class="muted" id="blacklist-view"></p>
+      </div>
+    </section>
+
+    <!-- לשונית 2: אימונים -->
+    <section id="tab-workouts" class="tab-view">
+      <div class="card">
+        <div class="row">
+          <h2>תוכנית אימונים שבועית (4 ימים)</h2>
+          <select id="day-select" onchange="renderWorkoutDay()">
+            <option value="sunday">ראשון — חזה, כתפיים ובטן</option>
+            <option value="monday">שני — גב ויד קדמית</option>
+            <option value="tuesday">שלישי — רגליים ובטן</option>
+            <option value="thursday">חמישי — ידיים ובטן</option>
+          </select>
+        </div>
+        <div id="workout-exercises-list"></div>
+      </div>
+    </section>
+
+    <!-- לשונית 3: תזונה -->
+    <section id="tab-nutrition" class="tab-view">
+      <div class="card">
+        <h2>הוספת ארוחה</h2>
+        <div class="row" style="margin-bottom:10px;">
+          <input id="food-name" type="text" placeholder="שם המאכל (למשל: חזה עוף / אורז)" style="flex:1; min-width:160px;" />
+          <input id="food-cal" type="number" placeholder="קלוריות" style="width:110px;" />
+          <input id="food-pro" type="number" placeholder="חלבון (ג')" style="width:110px;" />
+          <button class="primary" onclick="addFood()">הוסף</button>
+        </div>
+        <div id="meals-list"></div>
+      </div>
+    </section>
+
+    <!-- לשונית 4: מאמן AI -->
+    <section id="tab-coach" class="tab-view">
+      <div class="card">
+        <h2>מאמן אישי AI (מבוסס נתוני המערכת)</h2>
+        <p class="muted">שאל על חלבון שנותר, מים, או התקדמות באימון של היום.</p>
+        <div class="row" style="margin:10px 0;">
+          <input id="coach-input" type="text" placeholder="למשל: כמה חלבון נותר לי היום?" style="flex:1;" />
+          <button class="primary" onclick="askCoach()">שלח</button>
+        </div>
+        <div id="coach-response" class="exercise-item">מוכן לעזור, אוריאל.</div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="active" data-tab="tab-home" onclick="switchTab('tab-home', this)">בית</button>
+    <button data-tab="tab-workouts" onclick="switchTab('tab-workouts', this)">אימונים</button>
+    <button data-tab="tab-nutrition" onclick="switchTab('tab-nutrition', this)">תזונה</button>
+    <button data-tab="tab-coach" onclick="switchTab('tab-coach', this)">מאמן AI</button>
+  </nav>
+
+  <script>
+    const STORAGE_KEY = "fitpro_ai_uriel_state_v1";
+    const BLACKLIST = [
+      "דדליפט", "בולגרי", "לאנג׳ים", "היפ טראסט",
+      "גלגל בטן", "חתירות יד אחת/בשיפוע", "פולאובר במכונה", "Upright Row"
+    ];
+
+    const PROGRAM = {
+      sunday: [
+        { name: "לחיצת חזה בשיפוע עם משקולות", equip: "משקולות יד + ספסל", target: "3×8-12" },
+        { name: "לחיצת חזה במכונה", equip: "מכונת כוח", target: "3×10-12" },
+        { name: "פרפר בכבלים", equip: "מכשיר כבלים", target: "3×12-15" },
+        { name: "הרחקת ידיים לצדדים", equip: "משקולות יד", target: "3×12-15" },
+        { name: "כפיפות בטן בכבל עם משקל", equip: "פולי עליון + חבל", target: "3×12-15" }
+      ],
+      monday: [
+        { name: "פולי עליון באחיזה רחבה", equip: "מכונת פולי עליון", target: "3×10-12" },
+        { name: "חתירה בישיבה בכבל", equip: "מכונת חתירה בכבל", target: "3×10-12" },
+        { name: "פשיטת כתפיים בידיים ישרות", equip: "פולי עליון", target: "3×12-15" },
+        { name: "כפיפת מרפקים עם מוט", equip: "מוט ישר", target: "3×10-12" },
+        { name: "פטישים עם משקולות", equip: "משקולות יד", target: "3×10-12" }
+      ],
+      tuesday: [
+        { name: "לחיצת רגליים במכונה", equip: "מכונת לחיצת רגליים", target: "3×10-12" },
+        { name: "פשיטת ברכיים במכונה", equip: "מכונת פשיטת ברכיים", target: "3×12-15" },
+        { name: "כפיפת ברכיים במכונה", equip: "מכונת כפיפת ברכיים", target: "3×12-15" },
+        { name: "כפיפות בטן בשיפוע עם משקל", equip: "ספסל שיפוע שלילי", target: "3×12-15" }
+      ],
+      thursday: [
+        { name: "כפיפת מרפקים עם מוט W", equip: "מוט W מעוקל", target: "3×10-12" },
+        { name: "פטישים עם משקולות", equip: "משקולות יד", target: "3×10-12" },
+        { name: "פשיטת מרפקים בכבל מלמעלה למטה", equip: "פולי עליון", target: "3×10-12" },
+        { name: "פשיטת מרפקים מעל הראש בכבל", equip: "פולי + חבל", target: "3×10-12" },
+        { name: "כפיפות בטן הפוכות", equip: "מזרן / ספסל", target: "3×15" }
+      ]
+    };
+
+    const defaultState = {
+      targets: { calories: 2500, protein: 170, water: 3000 },
+      water: 0,
+      meals: [],
+      logs: {}
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? { ...defaultState, ...JSON.parse(raw) } : { ...defaultState };
+      } catch {
+        return { ...defaultState };
+      }
+    }
+
+    let state = loadState();
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderAll();
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll(".tab-view").forEach(el => el.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      document.querySelectorAll("nav.bottom-nav button").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+    }
+
+    function addWater(ml) {
+      state.water = (state.water || 0) + ml;
+      saveState();
+    }
+
+    function resetWater() {
+      state.water = 0;
+      saveState();
+    }
+
+    function addFood() {
+      const name = document.getElementById("food-name").value.trim();
+      const calories = Number(document.getElementById("food-cal").value) || 0;
+      const protein = Number(document.getElementById("food-pro").value) || 0;
+      if (!name) return;
+      state.meals.unshift({ id: Date.now(), name, calories, protein });
+      document.getElementById("food-name").value = "";
+      document.getElementById("food-cal").value = "";
+      document.getElementById("food-pro").value = "";
+      saveState();
+    }
+
+    function updateSet(day, exIdx, setIdx, field, value) {
+      const key = `${day}_${exIdx}_${setIdx}`;
+      state.logs[key] = { ...(state.logs[key] || {}), [field]: value };
+      saveState();
+    }
+
+    function renderWorkoutDay() {
+      const day = document.getElementById("day-select").value;
+      const list = document.getElementById("workout-exercises-list");
+      const exercises = PROGRAM[day] || [];
+      list.innerHTML = exercises.map((ex, exIdx) => {
+        const setBoxes = [0, 1, 2].map(sIdx => {
+          const log = state.logs[`${day}_${exIdx}_${sIdx}`] || {};
+          return `
+            <div class="set-box">
+              <div class="muted">סט ${sIdx + 1}</div>
+              <input type="number" placeholder="ק״ג" value="${log.kg || ""}"
+                onchange="updateSet('${day}', ${exIdx}, ${sIdx}, 'kg', this.value)"
+                style="width:100%; margin-top:4px; text-align:center;" />
+              <input type="number" placeholder="חזרות" value="${log.reps || ""}"
+                onchange="updateSet('${day}', ${exIdx}, ${sIdx}, 'reps', this.value)"
+                style="width:100%; margin-top:4px; text-align:center;" />
+            </div>
+          `;
+        }).join("");
+        return `
+          <div class="exercise-item">
+            <div class="row">
+              <strong>${ex.name}</strong>
+              <span class="badge">${ex.target}</span>
+            </div>
+            <div class="muted" style="margin-top:4px;">מכשיר: ${ex.equip}</div>
+            <div class="sets-grid">${setBoxes}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function askCoach() {
+      const q = document.getElementById("coach-input").value.trim();
+      const totalCal = state.meals.reduce((s, m) => s + (Number(m.calories) || 0), 0);
+      const totalPro = state.meals.reduce((s, m) => s + (Number(m.protein) || 0), 0);
+      const remPro = Math.max(state.targets.protein - totalPro, 0);
+      const remWater = Math.max(state.targets.water - (state.water || 0), 0);
+      document.getElementById("coach-response").innerHTML = `
+        <div><strong>שאלה:</strong> ${q || "סיכום מצב"}</div>
+        <div style="margin-top:6px;">
+          נצרכו היום <strong>${totalCal}</strong> קק״ל ו-<strong>${totalPro}g</strong> חלבון
+          (נותרו <strong>${remPro}g</strong> חלבון ו-<strong>${remWater}</strong> מ״ל מים).
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      const totalCal = state.meals.reduce((s, m) => s + (Number(m.calories) || 0), 0);
+      const totalPro = state.meals.reduce((s, m) => s + (Number(m.protein) || 0), 0);
+      document.getElementById("kpi-calories").textContent = `${totalCal.toLocaleString()} / 2,500`;
+      document.getElementById("kpi-protein").textContent = `${totalPro} / 170g`;
+      document.getElementById("kpi-water").textContent = `${(state.water || 0).toLocaleString()} / 3,000 מ"ל`;
+      document.getElementById("blacklist-view").textContent = BLACKLIST.join(" • ");
+      document.getElementById("meals-list").innerHTML = state.meals.length
+        ? state.meals.map(m => `<div class="exercise-item row"><span><strong>${m.name}</strong></span><span class="muted">${m.calories} קק״ל • ${m.protein}g חלבון</span></div>`).join("")
+        : `<p class="muted">עדיין לא נוספו ארוחות היום.</p>`;
+      renderWorkoutDay();
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
